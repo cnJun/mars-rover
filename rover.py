@@ -1,48 +1,49 @@
 import sys
 import pytest
+import re
 
 # gloabl variable
 car_info = {"x": -1, "y": -1, "dir": None}
 # the fourth direction
-valid_directions = ["N", "W", "S", "E"]
+valid_directions = ["N", "E", "S", "W"]
 the_map = {"max_x": 0, "max_y": 0}
 
-#/////////////////////////////////////////
+#///////////////////////////////////////// TEST
 def test_outof_map_right_test():
     # 0, 0, E
     initial_map("5 5")
-    assert put_car_into_map(5, 5, "E") == None
+    assert put_car_into_map([5, 5, "E"]) == None
     assert command_M() == False
 
 
 
 def test_outof_map_left_test():
     # 0, 0, W
-    assert put_car_into_map(0, 0, "W") == None
+    assert put_car_into_map([0, 0, "W"]) == None
     assert command_M() == False
 
 
 def test_outof_map_top_test():
     # 5 5 N
     initial_map("5 5")
-    assert put_car_into_map(5, 5, "N") == None
+    assert put_car_into_map([5, 5, "N"]) == None
     assert command_M() == False
 
 
 
 def test_outof_map_bottom():
     # 0 0 S
-    assert put_car_into_map(0, 0, "S") == None
+    assert put_car_into_map([0, 0, "S"]) == None
     assert command_M() == False
 
 def test_not_valid_car_initial_info():
     initial_map("0 0")
-    assert put_car_into_map(0, 1, "N") == False
-    assert put_car_into_map(1, 0, "N") == False
-    assert put_car_into_map(-1, 0, "N") == False
-    assert put_car_into_map(0, -1, "N") == False
+    assert put_car_into_map([0, 1, "N"]) == False
+    assert put_car_into_map([1, 0, "N"]) == False
+    assert put_car_into_map([-1, 0, "N"]) == False
+    assert put_car_into_map([0, -1, "N"]) == False
 
-#/////////////////////////////////////////
+#///////////////////////////////////////// HELP FUNTIONS
 
 # get the max row and the max col----------------
 # y-> row, x->col
@@ -53,10 +54,16 @@ def initial_map(row_col):
     the_map["max_x"] = int(args[0])
     the_map["max_y"] = int(args[1])
 
-# help funtions ------------------------------
-def put_car_into_map(x, y, direction):
+def put_car_into_map(args):
     # update the position
     try:
+        if len(args) != 3:
+            print("Enter valid car info, please")
+            raise
+
+        x = args[0]
+        y = args[1]
+        direction = args[2]
         if int(x) > the_map["max_x"] or int(y) > the_map["max_x"] or int(x) < 0 or int(y) < 0:
             raise
         car_info["x"] = int(x)
@@ -108,51 +115,54 @@ def command_M():
             car_info["x"] = car_info["x"] - 1
     except:
         return False
+
+def executeTheCommands(commands):
+    # invalid input, exit the program
+    if commands == None or len(commands) == 0:
+        print("Enter valid command, please")
+        return
+
+    commands = list(commands)
+    for i in range(0, len(commands)):
+        command = commands[i]
+        if command == "L":
+            command_L()
+        elif command == "R":
+            command_R()
+        elif command == "M":
+            # invalid command
+            if command_M() == False:
+                raise
+        else:
+            # invalid command
+           raise
+
     
 
 
 #-------------------------------MAIN------------------------------
 def main():
-    '''
-    1 2 N
-    LMLMLMLMM
-    3 3 E
-    MMRMMRMRRM'''
-    row_col = input().strip()
-    initial_map(row_col)
-    car_info_input = input()
-    car_info_input.strip()
-    while (car_info_input):
-        args = car_info_input.split(' ')
-        if len(args) != 3:
-            raise
-        
-        #initial the info of the car
-        put_car_into_map(args[0], args[1], args[2])
+    # invalid input
+    try:
+        row_col = input().strip()
+        initial_map(row_col)
 
-        # control
-        control_command = input()
-        control_command = control_command.strip()
-        if control_command == None or len(control_command) == 0:
-            raise
-        commands = list(control_command)
-        for i in range(0, len(commands)):
-            print(car_info)
-            command = commands[i]
-            if command == "L":
-                command_L()
-            elif command == "R":
-                command_R()
-            elif command == "M":
-                command_M()
-            else:
-                # invalid command
-                raise
-        # print the final info of the car
-        print(f'{car_info["x"]} {car_info["y"]} {car_info["dir"]}')
-        car_info_input = input()
-        car_info_input = car_info_input.strip()
+        while (True):
+            car_info_input = input().strip()
 
+            #initial the info of the car
+            # if the input is invalid, exit the program
+            if put_car_into_map(car_info_input.split(' ')) == False:
+                break
+
+            # control
+            executeTheCommands(input().strip())
+
+            # print the final info of the car
+            print(f'{car_info["x"]} {car_info["y"]} {car_info["dir"]}')
+    except:
+        print("Enter valid input, please")
+        return
 if __name__ == "__main__":
     main()
 
