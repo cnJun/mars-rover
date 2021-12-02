@@ -1,0 +1,4 @@
+src文件里为源码
+文件运行（需jdk1.8以上版本）：
+1、input.txt输入测试样例
+2、点击run.bat运行得到结果文件output.txt
